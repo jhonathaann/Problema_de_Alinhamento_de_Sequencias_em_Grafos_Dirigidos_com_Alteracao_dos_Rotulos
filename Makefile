@@ -7,8 +7,8 @@ EXE := $(OUTDIR)/teste.exe
 
 all: $(EXE)
 
-$(EXE): gurobi_teste.c build_gurobi.bat
-	cmd /c "call build_gurobi.bat $(OUTDIR)"
+$(EXE): gurobi_teste.c build/build_gurobi.bat
+	cmd /c "call build/build_gurobi.bat $(OUTDIR)"
 
 build: $(EXE)
 

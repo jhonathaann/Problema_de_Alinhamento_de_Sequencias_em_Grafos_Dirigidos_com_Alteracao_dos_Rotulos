@@ -34,7 +34,7 @@ call "%VSDEVCMD%" -no_logo -arch=x64 -host_arch=x64
 if errorlevel 1 goto :err_vsdevcmd_failed
 
 echo [INFO] Compilando com cl.exe...
-cl /nologo /TC /W3 /EHsc- /I"%GUROBI_INC%" /Fo"%OUTDIR%\teste.obj" /Fe"%OUTDIR%\teste.exe" teste.c /link /nologo /LIBPATH:"%GUROBI_LIB%" gurobi130.lib /OUT:"%OUTDIR%\teste.exe" /PDB:"%OUTDIR%\teste.pdb" /ILK:"%OUTDIR%\teste.ilk"
+cl /nologo /TC /W3 /EHsc- /I"%GUROBI_INC%" /Fo"%OUTDIR%\teste.obj" /Fe"%OUTDIR%\teste.exe" gurobi_teste.c /link /nologo /LIBPATH:"%GUROBI_LIB%" gurobi130.lib /OUT:"%OUTDIR%\teste.exe" /PDB:"%OUTDIR%\teste.pdb" /ILK:"%OUTDIR%\teste.ilk"
 
 exit /b %errorlevel%
 
