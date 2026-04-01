@@ -1,0 +1,1 @@
+### Dado um Grafo digirido G, onde cada vértice possui um rótulo de um alfabeto definido, o objetivo é encontrar um passeio nesse grafo que reproduza uma string de entrada, minimizando o custo associado à alteração dos rótulos originais dos vértices de G. 

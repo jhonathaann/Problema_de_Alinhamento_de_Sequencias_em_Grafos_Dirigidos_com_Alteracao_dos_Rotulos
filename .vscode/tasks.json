@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build teste (MSVC + Gurobi)",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "${workspaceFolder}\\build_gurobi_msvc.bat build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

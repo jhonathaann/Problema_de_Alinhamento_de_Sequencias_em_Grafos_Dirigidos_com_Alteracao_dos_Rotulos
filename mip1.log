@@ -1,0 +1,81 @@
+
+Gurobi 13.0.1 (win64) logging started Tue Mar 31 20:43:52 2026
+
+Set parameter Username
+Set parameter LicenseID to value 2801010
+Academic license - for non-commercial use only - expires 2027-03-31
+Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (win64 - Windows 11+.0 (26200.2))
+
+CPU model: AMD Ryzen 7 5700U with Radeon Graphics, instruction set [SSE2|AVX|AVX2]
+Thread count: 8 physical cores, 16 logical processors, using up to 16 threads
+
+Optimize a model with 0 rows, 0 columns and 0 nonzeros (Min)
+Model fingerprint: 0xf9715da1
+Model has 0 linear objective coefficients
+Coefficient statistics:
+  Matrix range     [0e+00, 0e+00]
+  Objective range  [0e+00, 0e+00]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [0e+00, 0e+00]
+
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    0.0000000e+00   0.000000e+00   0.000000e+00      0s
+
+Solved in 0 iterations and 0.00 seconds (0.00 work units)
+Optimal objective  0.000000000e+00
+
+Gurobi 13.0.1 (win64) logging started Tue Mar 31 20:44:42 2026
+
+Set parameter Username
+Set parameter LicenseID to value 2801010
+Academic license - for non-commercial use only - expires 2027-03-31
+Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (win64 - Windows 11+.0 (26200.2))
+
+CPU model: AMD Ryzen 7 5700U with Radeon Graphics, instruction set [SSE2|AVX|AVX2]
+Thread count: 8 physical cores, 16 logical processors, using up to 16 threads
+
+Optimize a model with 0 rows, 0 columns and 0 nonzeros (Min)
+Model fingerprint: 0xf9715da1
+Model has 0 linear objective coefficients
+Coefficient statistics:
+  Matrix range     [0e+00, 0e+00]
+  Objective range  [0e+00, 0e+00]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [0e+00, 0e+00]
+
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    0.0000000e+00   0.000000e+00   0.000000e+00      0s
+
+Solved in 0 iterations and 0.00 seconds (0.00 work units)
+Optimal objective  0.000000000e+00
+
+Gurobi 13.0.1 (win64) logging started Tue Mar 31 20:45:21 2026
+
+Set parameter Username
+Set parameter LicenseID to value 2801010
+Academic license - for non-commercial use only - expires 2027-03-31
+Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (win64 - Windows 11+.0 (26200.2))
+
+CPU model: AMD Ryzen 7 5700U with Radeon Graphics, instruction set [SSE2|AVX|AVX2]
+Thread count: 8 physical cores, 16 logical processors, using up to 16 threads
+
+Optimize a model with 0 rows, 0 columns and 0 nonzeros (Min)
+Model fingerprint: 0xf9715da1
+Model has 0 linear objective coefficients
+Coefficient statistics:
+  Matrix range     [0e+00, 0e+00]
+  Objective range  [0e+00, 0e+00]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [0e+00, 0e+00]
+
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    0.0000000e+00   0.000000e+00   0.000000e+00      0s
+
+Solved in 0 iterations and 0.00 seconds (0.00 work units)
+Optimal objective  0.000000000e+00
