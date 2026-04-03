@@ -14,13 +14,13 @@ Grafo* criar_grafo(int num_vertices){
     Grafo *grafo = (Grafo*)malloc(sizeof(Grafo));
     if(grafo == NULL){
         printf("Erro ao alocar o Grafo na memória!\n");
-        return;
+        exit(1);
     }
 
     grafo->n = num_vertices;
     grafo->lista_adj = (No**)malloc(num_vertices * sizeof(No*));
     if(grafo->lista_adj == NULL){
-        print("Erro ao alocar a lista de adj na memória!\n");
+        printf("Erro ao alocar a lista de adj na memória!\n");
     }
 
     for(int i = 0; i < num_vertices; i++){
@@ -32,8 +32,7 @@ Grafo* criar_grafo(int num_vertices){
 }
 
 void adicionar_aresta(Grafo *grafo, char origem, char destino){
-    // converte a letra para um indice de 0 a 25
-    int indice_origem = origem - 'A';
+    int indice_origem = origem - 'A';                       // converte a letra para um indice de 0 a 25
 
     No* novo_no = criar_no(destino);
 
@@ -53,4 +52,29 @@ void liberar_grafo(Grafo *grafo){
 
     free(grafo->lista_adj);
     free(grafo);
+}
+
+void imprimir_grafo(Grafo* grafo) {
+    printf("Grafo orientado\n");
+    for (int i = 0; i < grafo->n; i++) {
+        No* atual = grafo->lista_adj[i];
+        
+        // Converte o índice de volta para letra
+        char rotulo_origem = i + 'A';
+
+        printf("%c : ", rotulo_origem);
+
+        if (atual == NULL) {
+            printf("-1\n");
+        } else {
+            while (atual != NULL) {
+                printf("%c", atual->rotulo);
+                if (atual->proximo != NULL) {
+                    printf(", ");
+                }
+                atual = atual->proximo;
+            }
+            printf("\n");
+        }
+    }
 }

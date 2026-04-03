@@ -25,6 +25,7 @@ typedef struct Grafo {
 No* criar_no(char rotulo);
 Grafo* criar_grafo(int num_vertices);
 void adicionar_aresta(Grafo *grafo, char origem, char destino);
+void imprimir_grafo(Grafo *grafo);
 void liberar_grafo(Grafo *grafo);
 
 #endif
