@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #include "grafo.h"
+#include "modelo_pli.h"
 
 Grafo* ler_grafo(const char* nome_arquivo){
     Grafo *grafo;
@@ -47,6 +49,8 @@ Grafo* ler_grafo(const char* nome_arquivo){
 
 int main(int argc, char *argv[]){
     Grafo *grafo;
+    const char *q= "AAB";
+    int m = 3;
     
     if(argc < 2){
         printf("Uso: %s <arquivo_grafo>\n", argv[0]);
@@ -61,7 +65,9 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    imprimir_grafo(grafo);
+    // imprimir_grafo(grafo);
+
+    resolver_alinhamento(grafo, q, m);
    
     liberar_grafo(grafo);
     return 0;

@@ -41,7 +41,7 @@ void adicionar_aresta(Grafo *grafo, char origem, char destino){
 }
 
 void liberar_grafo(Grafo *grafo){
-    for(int i = 0 ;  grafo->n; i++){
+    for(int i = 0 ; i < grafo->n; i++){
         No *atual = grafo->lista_adj[i];
         while(atual != NULL){
             No *temp = atual;

@@ -1,5 +1,5 @@
 #ifndef GRAFO_H
-#define GRAFO_h
+#define GRAFO_H
 
 /* 
     [v1, v2, v3, v4, v5]
