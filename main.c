@@ -65,9 +65,9 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    // imprimir_grafo(grafo);
+    imprimir_grafo(grafo);
 
-    resolver_alinhamento(grafo, q, m);
+    // resolver_alinhamento(grafo, q, m);
    
     liberar_grafo(grafo);
     return 0;
