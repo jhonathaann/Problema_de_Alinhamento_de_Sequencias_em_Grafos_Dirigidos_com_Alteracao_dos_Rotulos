@@ -92,8 +92,7 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
     for(int u = 0; u < n; u++){
         No *atual = grafo->lista_adj[u];  // pegando o ponteiro que aponta para todos os vertices vizinhos do vertice "u"
         while(atual != NULL){
-            int v = atual->rotulo - 'A'; // converte a letra de destino para o indice
-
+            int v = atual->indice; // pega o indice do vertice destino
             for(int i = 0; i < m-1; i++){
                 char nome_var[25];
                 sprintf(nome_var, "X_%d_%d_%d", u, v, i);
