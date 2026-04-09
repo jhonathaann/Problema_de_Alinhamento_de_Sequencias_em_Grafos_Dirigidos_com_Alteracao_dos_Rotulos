@@ -64,7 +64,6 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
             erro = GRBaddvar(model, 0, NULL, NULL, 0.0, 0.0, 1.0, GRB_BINARY, nome_var);
             if (erro) goto TRATA_ERRO;
 
-
             idx_L[v * TAM_ALFABETO + c] = contador_vars++;
 
         }
@@ -111,15 +110,37 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
         for(int v = 0; v < n; v++){
             ind[nao_nulos] = idx_Y[v*m + i];    // pegando o indice da var Y_{v,i}
             val[nao_nulos] = 1.0;               // coeficiente dela é 1.0;
-            printf("%d\n", ind[nao_nulos]);
             nao_nulos++;
-
         }
 
         char nome_restricao[50];
         sprintf(nome_restricao, "Unicidade_Passo_%d", i);
 
         // GRBaddconstr(modelo, num_elementos_equacao, indices, coeficientes, sentido, valor_direito (RHS), nome)
+        erro = GRBaddconstr(model, nao_nulos, ind, val, GRB_EQUAL, 1.0, nome_restricao);
+        if (erro) goto TRATA_ERRO;
+
+        free(ind);
+        free(val);
+    }
+
+    // Unicidade do rótulo final: garantir que nenhum vertice tenha apenas um único rótulo
+    // somatorio de L_{v,c} = 1 para todo caracter c, para cada vertice v
+    for(int v = 0; v < n; v++){
+        // alocando espaço para o pior caso: todos os n vertices participam da soma
+        int *ind = (int*)malloc(TAM_ALFABETO * sizeof(int));
+        double *val = (double*)malloc(TAM_ALFABETO * sizeof(double));
+        int nao_nulos = 0;                                  // contator de elementos nao nulos na equacao
+
+        for(int c = 0; c < TAM_ALFABETO; c++){
+            ind[nao_nulos] = idx_L[v * TAM_ALFABETO + c];   // pegando o indice da var L_{v,c}
+            val[nao_nulos] = 1.0;                           // coeficiente dela é 1.0;
+            nao_nulos++;
+        }
+
+        char nome_restricao[50];
+        sprintf(nome_restricao, "Unicidade_Rotulo_%d", v);
+
         erro = GRBaddconstr(model, nao_nulos, ind, val, GRB_EQUAL, 1.0, nome_restricao);
         if (erro) goto TRATA_ERRO;
 
