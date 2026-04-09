@@ -8,9 +8,8 @@
 int resolver_alinhamento(Grafo* grafo, const char *q, int m){
     GRBenv      *env = NULL;
     GRBmodel    *model = NULL;
-    int         erro = 0;
+    int         erro = 0, contador_vars = 0, k = 0;
     int         n = grafo->n;
-    int k = 0;
 
     // Criando o ambiente
     erro = GRBloadenv(&env, "alinhamento.log");
@@ -34,12 +33,7 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
         erro = GRBaddvar(model, 0, NULL, NULL, 1.0, 0.0, 1.0, GRB_CONTINUOUS, nome_var);
         if (erro) goto TRATA_ERRO;
 
-        // O Gurobi sempre adiciona variáveis sequencialmente.
-        // Se o modelo estava vazio, o primeiro S_0 recebe o índice 0, S_1 o índice 1, etc.
-        // Mas para manter a robustez, pegamos o número atual de colunas.
-        int num_cols;
-        GRBgetintattr(model, GRB_INT_ATTR_NUMVARS, &num_cols);
-        idx_S[v] = num_cols-1;
+        idx_S[v] = contador_vars++;
 
     }
 
@@ -55,9 +49,7 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
             erro = GRBaddvar(model, 0, NULL, NULL, 0.0, 0.0, 1.0, GRB_BINARY, nome_var);
             if (erro) goto TRATA_ERRO;
 
-            int num_cols;
-            GRBgetintattr(model, GRB_INT_ATTR_NUMVARS, &num_cols);
-            idx_Y[v*m + i] = num_cols-1;
+            idx_Y[v*m + i] = contador_vars++;
             
         }
     }
@@ -72,9 +64,8 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
             erro = GRBaddvar(model, 0, NULL, NULL, 0.0, 0.0, 1.0, GRB_BINARY, nome_var);
             if (erro) goto TRATA_ERRO;
 
-            int num_cols;
-            GRBgetintattr(model, GRB_INT_ATTR_NUMVARS, &num_cols);
-            idx_L[v * TAM_ALFABETO + c] = num_cols - 1;
+
+            idx_L[v * TAM_ALFABETO + c] = contador_vars++;
 
         }
     }
@@ -100,15 +91,41 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
                 erro = GRBaddvar(model, 0, NULL, NULL, 0.0, 0.0, 1.0, GRB_BINARY, nome_var);
                 if (erro) goto TRATA_ERRO;
 
-                int num_cols;
-                GRBgetintattr(model, GRB_INT_ATTR_NUMVARS, &num_cols);
-                idx_X[u * n * (m-1) + v * (m-1) + i] = num_cols -1;     // salva o indice da var no Gurobi na posicao correta no nosso vetor 1D
+                idx_X[u * n * (m-1) + v * (m-1) + i] = contador_vars++;     // salva o indice da var no Gurobi na posicao correta no nosso vetor 1D
                 k++;
             }
             atual = atual->proximo;
         }
     }
 
+    // --- Adicionando as Restrições ao Modelo ---
+
+    // Unicidade de visita no passo i: garantir que estamos em exatamente um vértice durante a consulta da nossa string de entrada
+    // Somatório de Y_{v_i} = 1 para todo vertice v, para cada i
+    for(int i = 0; i < m; i++){
+        // alocando espaço para o pior caso: todos os n vertices participam da soma
+        int *ind = (int*)malloc(n * sizeof(int));
+        double *val = (double*)malloc(n * sizeof(double));
+        int nao_nulos = 0;      // contator de elementos nao nulos na equacao
+
+        for(int v = 0; v < n; v++){
+            ind[nao_nulos] = idx_Y[v*m + i];    // pegando o indice da var Y_{v,i}
+            val[nao_nulos] = 1.0;               // coeficiente dela é 1.0;
+            printf("%d\n", ind[nao_nulos]);
+            nao_nulos++;
+
+        }
+
+        char nome_restricao[50];
+        sprintf(nome_restricao, "Unicidade_Passo_%d", i);
+
+        // GRBaddconstr(modelo, num_elementos_equacao, indices, coeficientes, sentido, valor_direito (RHS), nome)
+        erro = GRBaddconstr(model, nao_nulos, ind, val, GRB_EQUAL, 1.0, nome_restricao);
+        if (erro) goto TRATA_ERRO;
+
+        free(ind);
+        free(val);
+    }
 
     erro = GRBupdatemodel(model);
     if (erro) goto TRATA_ERRO;
