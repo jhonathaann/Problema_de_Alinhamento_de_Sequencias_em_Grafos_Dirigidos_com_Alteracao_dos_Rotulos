@@ -194,6 +194,56 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
         }
     }
 
+    // (4) Equação de fluxo de entrada: ela vai garantir que se voce visitou o vertice "v"
+    // no passo i+1, obrigatoriamente alguma aresta que chega no vertice "v" partindo de algum
+    // vizinho "u" deve ter sido ativada no passo i
+    for(int v = 0; v < n; v++){
+        for(int i = 0; i < m-1; i++){
+            // pior caso de memoria: 1 variavel (y_{v,i}) + n-1 (no maximo n-1 arestas chegando em v)
+            int *ind = (int*)malloc(1+(n-1) * sizeof(int));
+            double *val = (double*)malloc(1+(n-1) * sizeof(double));
+            int nao_nulos = 0;
+
+            // 1° elemento da equação: y_{v_i} (coeficiente 1.0)
+            // a transicao "i" chega no destino no passo "i+1"
+            ind[nao_nulos] = idx_Y[v * m + (i+1)];
+            val[nao_nulos] = 1.0;
+            nao_nulos++;
+
+            // 2° elemento da equacao: o somatorio negativo de x_{u,v,i}
+            // precisamos varrer o grafo para saber que aponta para o vertice "v"
+            for(int u = 0; u < n; u++){
+                No *atual = grafo->lista_adj[u];
+                while(atual != NULL){
+                    // verificando se o vizinho do vertice "u" é o nosso vertice de interesse "v"
+                    if(atual->indice == v){
+                        // pega o indice da aretas u -> v
+                        int id_x = idx_X[u * n * (m - 1) + v * (m - 1) + i];
+                        
+                        // verificando se a aresta foi de fato ativada
+                        if(id_x != -1){
+                            ind[nao_nulos] = id_x;
+                            val[nao_nulos] = -1.0;
+                            nao_nulos;
+                        }
+                        break;      // o grafo tratado é orientado e simples: ou seja, não temos casos onde u <--> v
+                    }
+
+                    atual = atual->proximo;
+                }
+            }
+            char nome_variavel[25];
+            sprintf(nome_variavel, "Fluxo_Entrada_v%d_i%d", v, i);
+
+            // GRBaddconstr: y_{v, i+1} - sum x_{u,v,i} == 0
+            erro = GRBaddconstr(model, nao_nulos, ind, val, GRB_EQUAL, 0.0, nome_variavel);
+            if (erro) goto TRATA_ERRO;
+
+            free(ind);
+            free(val);
+        }
+    }
+
     erro = GRBupdatemodel(model);
     if (erro) goto TRATA_ERRO;
 
