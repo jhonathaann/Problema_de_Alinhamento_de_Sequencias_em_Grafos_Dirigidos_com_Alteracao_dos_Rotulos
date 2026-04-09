@@ -99,7 +99,7 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
 
     // --- Adicionando as Restrições ao Modelo ---
 
-    // Unicidade de visita no passo i: garantir que estamos em exatamente um vértice durante a consulta da nossa string de entrada
+    // (2) Unicidade de visita no passo i: garantir que estamos em exatamente um vértice durante a consulta da nossa string de entrada
     // Somatório de Y_{v_i} = 1 para todo vertice v, para cada i
     for(int i = 0; i < m; i++){
         // alocando espaço para o pior caso: todos os n vertices participam da soma
@@ -124,7 +124,7 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
         free(val);
     }
 
-    // Unicidade do rótulo final: garantir que nenhum vertice tenha apenas um único rótulo
+    // (5) Unicidade do rótulo final: garantir que um vertice tenha apenas um único rótulo
     // somatorio de L_{v,c} = 1 para todo caracter c, para cada vertice v
     for(int v = 0; v < n; v++){
         // alocando espaço para o pior caso: todos os n vertices participam da soma
@@ -146,6 +146,52 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
 
         free(ind);
         free(val);
+    }
+
+    // (3) Equação de fluxo de saida: ela vai tratar da transição de um passo i para um passo i+1.
+    // ela vai garantir que se voce visitar o vértice u no passo i, voce vai ser obrigado
+    // a escolher exatamente uma aresta saindo de u para algum vizinho v
+    for(int u = 0; u < n; u++){
+        // i vai ate m-2, pois não tem fluxo de saida em m-1 (ultimo passo)
+        for(int i = 0; i < m-1; i++){
+            // pior caso de memoria: 1 (variavel y) + n-1 (no maximo n-1 vertices vizinhos de u)
+            int *ind = (int*)malloc(1+(n-1) * sizeof(int));
+            double *val = (double*)malloc(1+(n-1) * sizeof(double));
+            int nao_nulos = 0;
+
+            // 1° elemento da equacao: a var y_{u_i} (coeficiente positivo 1.0)
+            ind[nao_nulos] = idx_Y[u*m + i];
+            val[nao_nulos] = 1.0;
+            nao_nulos++;
+            
+            // 2° elemento da equacao: o somatorio negativo de x_{u,v,i}
+            No *atual = grafo->lista_adj[u];    // ponteiro para o inicio da lista de vizinhos do vertice u
+            while(atual != NULL){
+                int v = atual->indice;          // pega o indice do vertice atual
+
+                // pega o indice da aresta que foi ativada
+                int id_x = idx_X[u * n * (m-1) + v * (m-1) + i];
+
+                // verificando se de fato ela foi ativada
+                if(id_x != -1){
+                    ind[nao_nulos] = id_x;
+                    val[nao_nulos] = -1.0;      // coeficiente negativo pois passamos para o lado esquerdo
+                    nao_nulos++;
+                }
+
+                atual = atual->proximo;
+            }
+
+            char nome_restricao[25];
+            sprintf(nome_restricao, "Fluxo_Saida_u%d_i%d", u, i);
+
+            // GRBaddconstr: y_{u,i} - sum x_{u,v,i} == 0
+            erro = GRBaddconstr(model, nao_nulos, ind, val, GRB_EQUAL, 0.0, nome_restricao);
+            if (erro) goto TRATA_ERRO;
+
+            free(ind);
+            free(val);
+        }
     }
 
     erro = GRBupdatemodel(model);
