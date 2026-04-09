@@ -244,6 +244,32 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
         }
     }
 
+    // (6) garante que se o vertice v foi visitado no passo i , então o seu rótulo final 
+    // tem que ser o mesmo simbolo contido na string de entrada q na posicao i (q[i])
+    // y_{v,i} - L_{v, q[i]} <= 0
+    for(int v = 0; v < n; v++){
+        for(int i = 0; i < m; i++){
+            int ind[2];
+            double val[2];
+
+            // variavel y_{v,i} (coenficiente é 1.0)
+            ind[0] = idx_Y[v * m + i];
+            val[0] = 1.0;
+
+            // variavel L_{v, q[i]} (coeficiente é -1.0)
+            int posicao = q[i] - 'A';
+            ind[1] = idx_L[v * TAM_ALFABETO + posicao];
+            val[1] = -1.0;
+
+            char nome_restricao[25];
+            sprintf(nome_restricao, "Emissao_v%d_i%d", v, i);
+
+            erro = GRBaddconstr(model, 2, ind, val, GRB_LESS_EQUAL, 0.0, nome_restricao);
+            if (erro) goto TRATA_ERRO;
+
+        }
+    }
+
     erro = GRBupdatemodel(model);
     if (erro) goto TRATA_ERRO;
 
