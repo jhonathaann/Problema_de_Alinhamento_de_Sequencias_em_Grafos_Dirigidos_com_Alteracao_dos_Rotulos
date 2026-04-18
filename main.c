@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #include "grafo.h"
+#include "modelo_pli.h"
 
 Grafo* ler_grafo(const char* nome_arquivo){
     Grafo *grafo;
@@ -19,34 +21,64 @@ Grafo* ler_grafo(const char* nome_arquivo){
 
     grafo = criar_grafo(n);
 
+    // Le cada linha do grafo
     while(fgets(linhas, sizeof(linhas), arquivo) != NULL){
-        char *token = strtok(linhas, " :");
-        if(token == NULL) continue;
+        char *p = linhas;
+        
+        // Pula espacos iniciais
+        while(isspace((unsigned char)*p)) p++;
+        if(*p == '\0' || *p == '\n') continue;
 
-        char origem = token[0];
+        // Le o indice do vertice origem
+        char *endptr;
+        long origem = strtol(p, &endptr, 10);
+        if(endptr == p) continue;
+        p = endptr;
 
-        token = strtok(NULL, " ");
+        // Le o rotulo do vertice
+        while(isspace((unsigned char)*p)) p++;
+        if(!isalpha((unsigned char)*p)) continue;
+        char rotulo_origem = *p;
+        p++;
 
-        while(token != NULL){
-            // Remove espaços em branco do início
-            while(*token == ' ' || *token == '\t') token++;
-            
-            if(strcmp(token, "-1;") == 0 || strcmp(token, "-1") == 0) break;
-            
-            // Verifica se o token tem pelo menos um caractere e é uma letra
-            if(strlen(token) > 0 && isalpha(token[0])){
-                adicionar_aresta(grafo, origem, token[0]);
+        // Procura os dois pontos
+        char *dois_pontos = strchr(p, ':');
+        if(dois_pontos == NULL) continue;
+        p = dois_pontos + 1;
+
+        // Valida o indice e armazena o rotulo
+        if(origem < 0 || origem >= n) continue;
+        grafo->rotulos[origem] = rotulo_origem;
+
+        // Pula espacos apos os dois pontos
+        while(isspace((unsigned char)*p)) p++;
+        
+        // Verifica se nao tem vizinhos
+        if(strncmp(p, "-1", 2) == 0) continue;
+
+        // Le a lista de destinos
+        while(*p != '\0'){
+            while(isspace((unsigned char)*p) || *p == ',') p++;
+            if(*p == ';' || *p == '\n' || *p == '\0') break;
+            if(*p == '-') break;
+
+            long destino = strtol(p, &endptr, 10);
+            if(endptr == p) break;
+            if(destino >= 0 && destino < n){
+                adicionar_aresta(grafo, (int)origem, (int)destino);
             }
-
-            token = strtok(NULL, " ,;\n");
+            p = endptr;
         }
     }
+    
     fclose(arquivo);
     return grafo;
 }
 
 int main(int argc, char *argv[]){
     Grafo *grafo;
+    const char *q= "ABB";
+    int m = 3;
     
     if(argc < 2){
         printf("Uso: %s <arquivo_grafo>\n", argv[0]);
@@ -62,6 +94,8 @@ int main(int argc, char *argv[]){
     }
 
     imprimir_grafo(grafo);
+
+    resolver_alinhamento(grafo, q, m);
    
     liberar_grafo(grafo);
     return 0;
