@@ -77,7 +77,7 @@ Grafo* ler_grafo(const char* nome_arquivo){
 
 int main(int argc, char *argv[]){
     Grafo *grafo;
-    const char *q= "AAB";
+    const char *q= "ABB";
     int m = 3;
     
     if(argc < 2){
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]){
 
     imprimir_grafo(grafo);
 
-    // resolver_alinhamento(grafo, q, m);
+    resolver_alinhamento(grafo, q, m);
    
     liberar_grafo(grafo);
     return 0;

@@ -50,7 +50,7 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
             if (erro) goto TRATA_ERRO;
 
             idx_Y[v*m + i] = contador_vars++;
-            
+
         }
     }
 
@@ -155,15 +155,15 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
         // i vai ate m-2, pois não tem fluxo de saida em m-1 (ultimo passo)
         for(int i = 0; i < m-1; i++){
             // pior caso de memoria: 1 (variavel y) + n-1 (no maximo n-1 vertices vizinhos de u)
-            int *ind = (int*)malloc(1+(n-1) * sizeof(int));
-            double *val = (double*)malloc(1+(n-1) * sizeof(double));
+            int *ind = (int*)malloc(n * sizeof(int));
+            double *val = (double*)malloc(n * sizeof(double));
             int nao_nulos = 0;
 
             // 1° elemento da equacao: a var y_{u_i} (coeficiente positivo 1.0)
             ind[nao_nulos] = idx_Y[u*m + i];
             val[nao_nulos] = 1.0;
             nao_nulos++;
-            
+
             // 2° elemento da equacao: o somatorio negativo de x_{u,v,i}
             No *atual = grafo->lista_adj[u];    // ponteiro para o inicio da lista de vizinhos do vertice u
             while(atual != NULL){
@@ -219,12 +219,12 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
                     if(atual->indice == v){
                         // pega o indice da aretas u -> v
                         int id_x = idx_X[u * n * (m - 1) + v * (m - 1) + i];
-                        
+
                         // verificando se a aresta foi de fato ativada
                         if(id_x != -1){
                             ind[nao_nulos] = id_x;
                             val[nao_nulos] = -1.0;
-                            nao_nulos;
+                            nao_nulos++;
                         }
                         break;      // o grafo tratado é orientado e simples: ou seja, não temos casos onde u <--> v
                     }
@@ -244,7 +244,7 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
         }
     }
 
-    // (6) garante que se o vertice v foi visitado no passo i , então o seu rótulo final 
+    // (6) garante que se o vertice v foi visitado no passo i , então o seu rótulo final
     // tem que ser o mesmo simbolo contido na string de entrada q na posicao i (q[i])
     // y_{v,i} - L_{v, q[i]} <= 0
     for(int v = 0; v < n; v++){
@@ -284,23 +284,42 @@ int resolver_alinhamento(Grafo* grafo, const char *q, int m){
         ind[1] = idx_L[v * TAM_ALFABETO + posicao];
         val[1] = 1.0;
 
-        char nome_restricao[25];
+        char nome_restricao[32];
         sprintf(nome_restricao, "Penalidade_v%d", v);
 
         erro = GRBaddconstr(model, 2, ind, val, GRB_GREATER_EQUAL, 1.0, nome_restricao);
         if (erro) goto TRATA_ERRO;
     }
 
-    
-
     erro = GRBupdatemodel(model);
     if (erro) goto TRATA_ERRO;
 
+    // Fase de Otimização do Modelo
+    erro = GRBoptimize(model);
+    if (erro) goto TRATA_ERRO;
+
+    int status_otimizacao;
+    erro = GRBgetintattr(model, GRB_INT_ATTR_STATUS, &status_otimizacao);
+    if (erro) goto TRATA_ERRO;
+
+    if(status_otimizacao == GRB_OPTIMAL){
+        double valor_objetivo;
+        erro = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &valor_objetivo);
+        printf("Custo total: %f\n", valor_objetivo);
+
+    }else if(status_otimizacao == GRB_INFEASIBLE){
+        printf("Solucao inviavel! nao existe passeio no grafo que atende as restricoes\n");
+    }else if(status_otimizacao == GRB_TIME_LIMIT){
+        printf("Limite de tempo de execucao atingido!\n");
+    }else{
+        printf("A otimizacao parou com status: %d\n", status_otimizacao);
+    }
+
     printf("Modelo criado com sucesso!\n");
-    printf("Variaveis S: %d\n", n);
-    printf("Variaveis Y: %d\n", n*m);
-    printf("Variaveis L: %d\n", n*TAM_ALFABETO);
-    printf("Variaveis X: %d\n", k);
+    // printf("Variaveis S: %d\n", n);
+    // printf("Variaveis Y: %d\n", n*m);
+    // printf("Variaveis L: %d\n", n*TAM_ALFABETO);
+    // printf("Variaveis X: %d\n", k);
 
     free(idx_S);
     free(idx_Y);
